@@ -2,10 +2,16 @@ import React, { useState } from 'react';
 import { View, Image, StyleSheet, Dimensions, TouchableOpacity, Alert } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { FontAwesome } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { RootStackParamList } from '../navigation';
 
 const { width } = Dimensions.get('window');
 
+type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Home'>;
+
 const HomeScreen = () => {
+  const navigation = useNavigation<HomeScreenNavigationProp>();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   // Képválasztó funkció
@@ -45,19 +51,19 @@ const HomeScreen = () => {
         />
       </TouchableOpacity>
       <View style={styles.iconContainer}>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate('Milestones')}>
           <FontAwesome name="trophy" size={32} color="#FFFFFF" />
         </TouchableOpacity>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate('Gallery')}>
           <FontAwesome name="image" size={32} color="#FFFFFF" />
         </TouchableOpacity>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
           <FontAwesome name="paw" size={32} color="#FFFFFF" />
         </TouchableOpacity>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate('Tips')}>
           <FontAwesome name="graduation-cap" size={32} color="#FFFFFF" />
         </TouchableOpacity>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate('Settings')}>
           <FontAwesome name="cog" size={32} color="#FFFFFF" />
         </TouchableOpacity>
       </View>
@@ -68,7 +74,7 @@ const HomeScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#717296', // Háttérszín
+    backgroundColor: '#717296',
     justifyContent: 'center',
     alignItems: 'center',
   },

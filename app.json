@@ -14,7 +14,8 @@
     "ios": {
       "infoPlist": {
         "NSCameraUsageDescription": "A macska profilképének feltöltéséhez szükséges.",
-        "NSPhotoLibraryUsageDescription": "A galériából kép kiválasztásához szükséges."
+        "NSPhotoLibraryUsageDescription": "A galériából kép kiválasztásához szükséges.",
+        "NSUserNotificationUsageDescription": "Értesítések az etetésről, vízcseréről és állatorvosi időpontokról."
       }
     },
     "android": {

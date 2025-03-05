@@ -1,0 +1,48 @@
+{
+  "expo": {
+    "name": "MeowMentor",
+    "slug": "MeowMentor",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "bundleIdentifier": "com.meowmentor.app",
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSCameraUsageDescription": "A macska profilképének feltöltéséhez szükséges.",
+        "NSPhotoLibraryUsageDescription": "A galériából kép kiválasztásához szükséges.",
+        "NSUserNotificationUsageDescription": "Értesítések az etetésről, vízcseréről és állatorvosi időpontokról."
+      }
+    },
+    "android": {
+      "package": "com.meowmentor.app",
+      "versionCode": 1,
+      "permissions": [
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE",
+        "RECEIVE_BOOT_COMPLETED",
+        "VIBRATE"
+      ],
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/icon.png",
+        "backgroundColor": "#FFFFFF"
+      },
+      "softwareKeyboardLayoutMode": "pan"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "extra": {
+      "eas": {
+        "projectId": "meowmentor-app"
+      }
+    }
+  }
+}

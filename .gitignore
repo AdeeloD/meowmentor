@@ -1,0 +1,61 @@
+# Node.js / React Native
+node_modules/
+.expo/
+.expo-shared/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+/dist
+/.parcel-cache
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Editor config
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+/logs
+**/*.log
+yarn-error.log*
+pnpm-debug.log*
+
+# Typescript
+*.tsbuildinfo
+
+# Dependency directories
+/node_modules/
+/jspm_packages/
+
+# Environment
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Build directories
+/build/
+/dist/
+/out/
+/coverage/
+
+# Database & Secrets
+/secrets
+*.sqlite
+*.db

@@ -8,6 +8,7 @@ export type RootStackParamList = {
   Profile: undefined;
   Tips: undefined;
   Settings: undefined;
+  Auth: undefined; 
 };
 
 export type NavigationProps<T extends keyof RootStackParamList> = {

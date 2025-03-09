@@ -1,81 +1,37 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Switch, TouchableOpacity, Alert } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as Notifications from 'expo-notifications';
-
-// Engedély kérése az értesítésekhez
-const requestNotificationPermissions = async () => {
-  const { status } = await Notifications.requestPermissionsAsync();
-  return status === 'granted';
-};
+import React from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Alert,
+} from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import type { StackNavigationProp } from "@react-navigation/stack";
+import { RootStackParamList } from "../navigation";
+import { logout } from "../services/auth";
 
 const SettingsScreen = () => {
-  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
 
-  // Betöltjük az értesítési beállításokat
-  useEffect(() => {
-    const loadSettings = async () => {
-      const storedValue = await AsyncStorage.getItem('notificationsEnabled');
-      if (storedValue !== null) {
-        setNotificationsEnabled(JSON.parse(storedValue));
-      }
-    };
-    loadSettings();
-  }, []);
-
-  // Értesítések be- vagy kikapcsolása
-  const toggleNotifications = async () => {
-    const newValue = !notificationsEnabled;
-    setNotificationsEnabled(newValue);
-    await AsyncStorage.setItem('notificationsEnabled', JSON.stringify(newValue));
-
-    if (newValue) {
-      const granted = await requestNotificationPermissions();
-      if (!granted) {
-        Alert.alert('Engedély szükséges', 'Engedélyezd az értesítéseket a beállításokban.');
-        setNotificationsEnabled(false);
-        await AsyncStorage.setItem('notificationsEnabled', JSON.stringify(false));
-      }
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigation.reset({
+        index: 0,
+        routes: [{ name: "Auth" }],
+      });
+    } catch (error) {
+      Alert.alert("Hiba", "Nem sikerült kijelentkezni. Próbáld újra.");
     }
-  };
-
-  // Teszt értesítés küldése
-  const sendTestNotification = async () => {
-    await Notifications.scheduleNotificationAsync({
-      content: {
-        title: 'MeowMentor Emlékeztető',
-        body: 'Ne felejtsd el megetetni a cicádat!',
-      },
-      trigger: { seconds: 3 },
-    });
-  };
-
-  // Adatok törlése
-  const resetData = async () => {
-    await AsyncStorage.clear();
-    Alert.alert('Alkalmazásadatok törölve!', 'Az összes beállítás visszaállt.');
   };
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Beállítások</Text>
 
-      {/* Értesítések kapcsoló */}
-      <View style={styles.settingItem}>
-        <Text style={styles.settingText}>Értesítések engedélyezése</Text>
-        <Switch value={notificationsEnabled} onValueChange={toggleNotifications} />
-      </View>
-
-      {/* Teszt értesítés küldése */}
-      {notificationsEnabled && (
-        <TouchableOpacity style={styles.button} onPress={sendTestNotification}>
-          <Text style={styles.buttonText}>Teszt értesítés küldése</Text>
-        </TouchableOpacity>
-      )}
-
-      {/* Adatok törlése */}
-      <TouchableOpacity style={styles.deleteButton} onPress={resetData}>
-        <Text style={styles.buttonText}>Alkalmazásadatok törlése</Text>
+      <TouchableOpacity style={styles.option} onPress={handleLogout}>
+        <Text style={[styles.optionText, styles.logoutText]}>Kijelentkezés</Text>
       </TouchableOpacity>
     </View>
   );
@@ -84,46 +40,31 @@ const SettingsScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#717296',
-    padding: 20,
+    backgroundColor: "#717296",
+    alignItems: "center",
+    paddingTop: 50,
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-    marginBottom: 20,
-    textAlign: 'center',
-  },
-  settingItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: '#5A5C69',
-    padding: 15,
-    borderRadius: 8,
+    fontWeight: "bold",
+    color: "white",
     marginBottom: 20,
   },
-  settingText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-  },
-  button: {
-    backgroundColor: '#4CAF50',
+  option: {
+    width: "90%",
     padding: 15,
-    borderRadius: 8,
-    alignItems: 'center',
+    backgroundColor: "white",
+    borderRadius: 10,
     marginBottom: 10,
+    alignItems: "center",
   },
-  deleteButton: {
-    backgroundColor: '#D32F2F',
-    padding: 15,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginTop: 10,
+  optionText: {
+    fontSize: 18,
+    color: "#333",
   },
-  buttonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
+  logoutText: {
+    color: "red",
+    fontWeight: "bold",
   },
 });
 

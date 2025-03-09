@@ -1,125 +1,110 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { FontAwesome } from '@expo/vector-icons';
-
-// Mérföldkövek feltételei
-const milestoneConditions = {
-  feed_cat: 'Első etetés',
-  change_water: 'Friss víz',
-  play_with_cat: 'Játékidő',
-  vet_visit: 'Állatorvosi látogatás',
-};
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Alert,
+  Image,
+  TextInput,
+} from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as ImagePicker from "expo-image-picker";
+import { useNavigation } from "@react-navigation/native";
+import type { StackNavigationProp } from "@react-navigation/stack";
+import { RootStackParamList } from "../navigation";
 
 const ProfileScreen = () => {
-  const [lastFed, setLastFed] = useState<string | null>(null);
-  const [lastWaterChange, setLastWaterChange] = useState<string | null>(null);
-  const [playCount, setPlayCount] = useState(0);
-  const [vetVisit, setVetVisit] = useState<string | null>(null);
-  const [unlockedMilestones, setUnlockedMilestones] = useState<string[]>([]);
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+  const [catImage, setCatImage] = useState<string | null>(null);
+  const [catName, setCatName] = useState("");
+  const [dailyInteractions, setDailyInteractions] = useState<{ [key: string]: number }>({});
 
-  // Adatok betöltése
   useEffect(() => {
     const loadData = async () => {
-      try {
-        const storedLastFed = await AsyncStorage.getItem('lastFed');
-        const storedLastWaterChange = await AsyncStorage.getItem('lastWaterChange');
-        const storedPlayCount = await AsyncStorage.getItem('playCount');
-        const storedVetVisit = await AsyncStorage.getItem('vetVisit');
-        const storedMilestones = await AsyncStorage.getItem('unlockedMilestones');
+      const storedImage = await AsyncStorage.getItem("catImage");
+      if (storedImage) setCatImage(storedImage);
 
-        if (storedLastFed) setLastFed(storedLastFed);
-        if (storedLastWaterChange) setLastWaterChange(storedLastWaterChange);
-        if (storedPlayCount) setPlayCount(parseInt(storedPlayCount, 10));
-        if (storedVetVisit) setVetVisit(storedVetVisit);
-        if (storedMilestones) setUnlockedMilestones(JSON.parse(storedMilestones));
-      } catch (error) {
-        console.error('Hiba az adatok betöltésekor:', error);
-      }
+      const storedName = await AsyncStorage.getItem("catName");
+      if (storedName) setCatName(storedName);
     };
-
     loadData();
   }, []);
 
-  // Mérföldkő feloldása
-  const unlockMilestone = async (condition: keyof typeof milestoneConditions) => {
-    if (!unlockedMilestones.includes(condition)) {
-      const updatedMilestones = [...unlockedMilestones, condition];
-      setUnlockedMilestones(updatedMilestones);
-      await AsyncStorage.setItem('unlockedMilestones', JSON.stringify(updatedMilestones));
-      Alert.alert('Mérföldkő feloldva!', milestoneConditions[condition]);
+  const saveCatName = async (name: string) => {
+    setCatName(name);
+    await AsyncStorage.setItem("catName", name);
+  };
+
+  const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setCatImage(result.assets[0].uri);
+      await AsyncStorage.setItem("catImage", result.assets[0].uri);
     }
   };
 
-  // Etetés funkció
-  const feedCat = async () => {
-    const now = new Date().toLocaleString();
-    setLastFed(now);
-    await AsyncStorage.setItem('lastFed', now);
-    unlockMilestone('feed_cat');
-  };
+  const handleInteraction = async (action: string) => {
+    const today = new Date().toISOString().split("T")[0];
+    const storedData = await AsyncStorage.getItem("dailyInteractions");
+    const parsedData = storedData ? JSON.parse(storedData) : {};
+    
+    const updatedData = {
+      ...parsedData,
+      [today]: {
+        ...parsedData[today],
+        [action]: (parsedData[today]?.[action] || 0) + 1,
+      },
+    };
 
-  // Vízcsere funkció
-  const changeWater = async () => {
-    const now = new Date().toLocaleString();
-    setLastWaterChange(now);
-    await AsyncStorage.setItem('lastWaterChange', now);
-    unlockMilestone('change_water');
-  };
+    setDailyInteractions(updatedData);
+    await AsyncStorage.setItem("dailyInteractions", JSON.stringify(updatedData));
 
-  // Játék funkció
-  const playWithCat = async () => {
-    const newPlayCount = playCount + 1;
-    setPlayCount(newPlayCount);
-    await AsyncStorage.setItem('playCount', newPlayCount.toString());
-
-    if (newPlayCount === 1) unlockMilestone('play_with_cat');
-    if (newPlayCount >= 100) unlockMilestone('100_interactions');
-  };
-
-  // Állatorvosi látogatás funkció
-  const visitVet = async () => {
-    const now = new Date().toLocaleString();
-    setVetVisit(now);
-    await AsyncStorage.setItem('vetVisit', now);
-    unlockMilestone('vet_visit');
+    Alert.alert("Siker!", `Sikeresen elvégezted: ${action}`);
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Macska profil</Text>
+      <TextInput
+        style={styles.catName}
+        value={catName}
+        onChangeText={saveCatName}
+        placeholder="Add meg a cica nevét"
+        placeholderTextColor="white"
+      />
 
-      <View style={styles.infoContainer}>
-        <Text style={styles.infoText}>Utolsó etetés: {lastFed || 'Nincs adat'}</Text>
-        <TouchableOpacity style={styles.button} onPress={feedCat}>
-          <FontAwesome name="cutlery" size={24} color="#FFFFFF" />
-          <Text style={styles.buttonText}>Etetés</Text>
-        </TouchableOpacity>
-      </View>
+      <TouchableOpacity onPress={pickImage} style={styles.imageContainer}>
+        {catImage ? (
+          <Image source={{ uri: catImage }} style={styles.image} />
+        ) : (
+          <Text style={styles.imagePlaceholder}>Kép kiválasztása</Text>
+        )}
+      </TouchableOpacity>
 
-      <View style={styles.infoContainer}>
-        <Text style={styles.infoText}>Utolsó vízcsere: {lastWaterChange || 'Nincs adat'}</Text>
-        <TouchableOpacity style={styles.button} onPress={changeWater}>
-          <FontAwesome name="tint" size={24} color="#FFFFFF" />
-          <Text style={styles.buttonText}>Vízcsere</Text>
-        </TouchableOpacity>
-      </View>
+      <TouchableOpacity style={styles.button} onPress={() => handleInteraction("Etetés")}>
+        <Text style={styles.buttonText}>🐱 Etetés</Text>
+      </TouchableOpacity>
 
-      <View style={styles.infoContainer}>
-        <Text style={styles.infoText}>Játék interakciók: {playCount}</Text>
-        <TouchableOpacity style={styles.button} onPress={playWithCat}>
-          <FontAwesome name="gamepad" size={24} color="#FFFFFF" />
-          <Text style={styles.buttonText}>Játék</Text>
-        </TouchableOpacity>
-      </View>
+      <TouchableOpacity style={styles.button} onPress={() => handleInteraction("Itatás")}>
+        <Text style={styles.buttonText}>💧 Itatás</Text>
+      </TouchableOpacity>
 
-      <View style={styles.infoContainer}>
-        <Text style={styles.infoText}>Utolsó állatorvosi látogatás: {vetVisit || 'Nincs adat'}</Text>
-        <TouchableOpacity style={styles.button} onPress={visitVet}>
-          <FontAwesome name="stethoscope" size={24} color="#FFFFFF" />
-          <Text style={styles.buttonText}>Állatorvosi időpont</Text>
-        </TouchableOpacity>
-      </View>
+      <TouchableOpacity style={styles.button} onPress={() => handleInteraction("Játék")}>
+        <Text style={styles.buttonText}>🎾 Játék</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() => navigation.navigate("Calendar")}
+      >
+        <Text style={styles.buttonText}>📅 Naptár</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -127,40 +112,49 @@ const ProfileScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#717296',
-    padding: 20,
+    backgroundColor: "#717296",
+    alignItems: "center",
+    paddingTop: 50,
   },
-  title: {
+  catName: {
     fontSize: 24,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
+    fontWeight: "bold",
+    color: "white",
+    textAlign: "center",
     marginBottom: 20,
-    textAlign: 'center',
+    borderBottomWidth: 1,
+    borderBottomColor: "white",
+    width: "80%",
   },
-  infoContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: '#5A5C69',
-    padding: 15,
-    borderRadius: 8,
-    marginBottom: 10,
+  imageContainer: {
+    width: 120,
+    height: 120,
+    backgroundColor: "#ddd",
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 60,
+    marginBottom: 20,
   },
-  infoText: {
-    color: '#FFFFFF',
-    fontSize: 16,
+  image: {
+    width: "100%",
+    height: "100%",
+    borderRadius: 60,
+  },
+  imagePlaceholder: {
+    color: "#555",
+    fontSize: 14,
   },
   button: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#4CAF50',
-    padding: 10,
-    borderRadius: 5,
+    backgroundColor: "#fff",
+    padding: 15,
+    borderRadius: 10,
+    width: "80%",
+    alignItems: "center",
+    marginBottom: 10,
   },
   buttonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    marginLeft: 10,
+    fontSize: 18,
+    color: "#333",
   },
 });
 

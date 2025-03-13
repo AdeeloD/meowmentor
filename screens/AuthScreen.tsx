@@ -9,7 +9,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   Modal,
-  Alert
+  Alert,
 } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useNavigation } from "@react-navigation/native";
@@ -19,6 +19,8 @@ import { register, login } from "../services/auth";
 
 const AuthScreen = () => {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+
+  // Állapotok kezelése
   const [isRegistering, setIsRegistering] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -30,6 +32,7 @@ const AuthScreen = () => {
   const [showTerms, setShowTerms] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // 📌 Hitelesítés kezelése (Regisztráció/Bejelentkezés)
   const handleAuth = async () => {
     setError(null);
     try {
@@ -67,13 +70,16 @@ const AuthScreen = () => {
 
   return (
     <View style={styles.container}>
+      {/* Profilkép */}
       <View style={styles.imageContainer}>
         <Image source={require("../assets/cat.png")} style={styles.image} />
       </View>
 
+      {/* Űrlap */}
       <ScrollView contentContainerStyle={styles.formContainer}>
         <Text style={styles.title}>{isRegistering ? "Regisztráció" : "Bejelentkezés"}</Text>
 
+        {/* Regisztráció esetén név és születési dátum */}
         {isRegistering && (
           <>
             <TextInput
@@ -81,10 +87,13 @@ const AuthScreen = () => {
               value={name}
               onChangeText={setName}
               style={styles.input}
+              placeholderTextColor="#444"
             />
+
             <TouchableOpacity onPress={() => setShowDatePicker(true)} style={styles.dateInput}>
               <Text style={styles.dateText}>{birthdate.toDateString()}</Text>
             </TouchableOpacity>
+
             {showDatePicker && (
               <DateTimePicker
                 value={birthdate}
@@ -99,12 +108,14 @@ const AuthScreen = () => {
           </>
         )}
 
+        {/* E-mail és jelszó mezők */}
         <TextInput
-          placeholder="Email"
-          value={email}
-          onChangeText={setEmail}
-          style={styles.input}
-          keyboardType="email-address"
+        placeholder="Email"
+        value={email}
+        onChangeText={setEmail}
+        style={styles.input}
+        keyboardType="email-address"
+        placeholderTextColor="#444"
         />
         <TextInput
           placeholder="Jelszó"
@@ -112,8 +123,10 @@ const AuthScreen = () => {
           secureTextEntry
           onChangeText={setPassword}
           style={styles.input}
+          placeholderTextColor="#444"
         />
 
+        {/* Regisztráció esetén jelszó megerősítés és felhasználási feltételek */}
         {isRegistering && (
           <>
             <TextInput
@@ -122,7 +135,9 @@ const AuthScreen = () => {
               secureTextEntry
               onChangeText={setConfirmPassword}
               style={styles.input}
+              placeholderTextColor="#444"
             />
+
             <TouchableOpacity onPress={() => setAcceptedTerms(!acceptedTerms)}>
               <Text style={styles.terms}>
                 {acceptedTerms ? "☑ Elfogadom" : "☐ Elfogadom"}{" "}
@@ -134,19 +149,35 @@ const AuthScreen = () => {
           </>
         )}
 
+        {/* Gomb a bejelentkezéshez/regisztrációhoz */}
         <Button title={isRegistering ? "Regisztráció" : "Bejelentkezés"} onPress={handleAuth} />
+
+        {/* Hibaüzenet */}
         {error && <Text style={styles.error}>{error}</Text>}
 
+        {/* Módváltás (Bejelentkezés ⇄ Regisztráció) */}
         <TouchableOpacity onPress={() => setIsRegistering(!isRegistering)}>
           <Text style={styles.switchText}>
             {isRegistering ? "Már van fiókod? Bejelentkezés" : "Nincs fiókod? Regisztráció"}
           </Text>
         </TouchableOpacity>
       </ScrollView>
+
+      {/* Felhasználási feltételek Modal */}
+      <Modal visible={showTerms} transparent animationType="slide">
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Felhasználási feltételek</Text>
+            <Text style={styles.modalText}>Próba szöveg</Text>
+            <Button title="Bezárás" onPress={() => setShowTerms(false)} />
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
 
+// 🎨 **Stílusok**
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -186,6 +217,7 @@ const styles = StyleSheet.create({
     width: "100%",
     backgroundColor: "#fff",
     fontSize: 16,
+
   },
   dateInput: {
     borderWidth: 1,
@@ -195,10 +227,11 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     width: "100%",
     backgroundColor: "#fff",
+    color: "black",
   },
   dateText: {
     fontSize: 16,
-    color: "#555",
+    color: "black",
   },
   terms: {
     fontSize: 16,
@@ -217,6 +250,25 @@ const styles = StyleSheet.create({
     marginTop: 10,
     color: "blue",
     fontSize: 16,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    backgroundColor: "rgba(0,0,0,0.5)",
+  },
+  modalContent: {
+    backgroundColor: "white",
+    padding: 20,
+    borderRadius: 10,
+    marginHorizontal: 20,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+  },
+  modalText: {
+    fontSize: 16,
+    marginVertical: 10,
   },
 });
 

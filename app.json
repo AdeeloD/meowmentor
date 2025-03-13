@@ -4,11 +4,11 @@
     "slug": "MeowMentor",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/cat.png",
     "splash": {
-      "image": "./assets/icon.png",
+      "image": "./assets/cat.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#717296"
     },
     "assetBundlePatterns": ["**/*"],
     "ios": {
@@ -24,6 +24,7 @@
       "package": "com.meowmentor.app",
       "versionCode": 1,
       "permissions": [
+        "INTERNET",
         "CAMERA",
         "READ_EXTERNAL_STORAGE",
         "WRITE_EXTERNAL_STORAGE",
@@ -37,7 +38,7 @@
       "softwareKeyboardLayoutMode": "pan"
     },
     "updates": {
-      "fallbackToCacheTimeout": 0
+      "enabled": false
     },
     "extra": {
       "eas": {

@@ -10,6 +10,7 @@ import CalendarScreen from "./screens/CalendarScreen";
 import SettingsScreen from "./screens/SettingsScreen";
 import AuthScreen from "./screens/AuthScreen";
 import { RootStackParamList } from "./navigation";
+import TermsScreen from "./screens/TermsScreen";
 
 const Stack = createStackNavigator<RootStackParamList>();
 
@@ -25,6 +26,7 @@ export default function App() {
         <Stack.Screen name="Tips" component={TipsScreen} />
         <Stack.Screen name="Settings" component={SettingsScreen} />
         <Stack.Screen name="Calendar" component={CalendarScreen} />
+        <Stack.Screen name="Terms" component={TermsScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

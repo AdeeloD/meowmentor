@@ -10,6 +10,7 @@ export type RootStackParamList = {
   Tips: undefined;
   Settings: undefined;
   Calendar: undefined
+  Terms: undefined;
 };
 
 export type NavigationProps<T extends keyof RootStackParamList> = {

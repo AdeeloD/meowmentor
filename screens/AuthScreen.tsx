@@ -165,14 +165,32 @@ const AuthScreen = () => {
 
       {/* Felhasználási feltételek Modal */}
       <Modal visible={showTerms} transparent animationType="slide">
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Felhasználási feltételek</Text>
-            <Text style={styles.modalText}>Próba szöveg</Text>
-            <Button title="Bezárás" onPress={() => setShowTerms(false)} />
-          </View>
-        </View>
-      </Modal>
+  <View style={styles.modalContainer}>
+    <View style={styles.modalContent}>
+      <Text style={styles.modalTitle}>Felhasználási feltételek</Text>
+      <ScrollView style={{ maxHeight: 400 }}>
+        <Text style={styles.modalText}>
+          A MeowMentor alkalmazás célja, hogy segítséget nyújtson macskatulajdonosoknak 
+          a felelős és tudatos kisállattartásban. Az alkalmazás letöltése ingyenes, 
+          azonban bizonyos prémium funkciók díjkötelesek. 
+
+          A regisztrációval elfogadod, hogy az alkalmazás használata során bizonyos adatokat 
+          gyűjtünk, például neved, e-mail címed és egyéb beállításokat. Az adatok kezelésére 
+          az adatvédelmi irányelveink vonatkoznak.
+
+          A felhasználók vállalják, hogy az alkalmazás használata során nem töltenek fel 
+          jogsértő, sértő vagy más módon nem megfelelő tartalmat. Az alkalmazás üzemeltetője 
+          fenntartja a jogot, hogy az ilyen tartalmakat törölje, illetve a felhasználót 
+          kitiltsa.
+
+          További részletekért kérjük, olvasd el az Általános Szerződési Feltételeket 
+          a beállítások menüben.
+        </Text>
+      </ScrollView>
+      <Button title="Bezárás" onPress={() => setShowTerms(false)} />
+    </View>
+  </View>
+</Modal>
     </View>
   );
 };

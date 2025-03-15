@@ -11,6 +11,7 @@ export type RootStackParamList = {
   Settings: undefined;
   Calendar: undefined
   Terms: undefined;
+  AccountSettings: undefined;
 };
 
 export type NavigationProps<T extends keyof RootStackParamList> = {

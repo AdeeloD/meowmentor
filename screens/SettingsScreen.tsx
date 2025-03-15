@@ -64,7 +64,7 @@ const SettingsScreen = () => {
     <ScrollView style={styles.container}>
       <Text style={styles.title}>Beállítások</Text>
       
-      <TouchableOpacity style={styles.option}>
+      <TouchableOpacity style={styles.option} onPress={() => navigation.navigate("AccountSettings")}>  
         <Text>Profil kezelése</Text>
       </TouchableOpacity>
       
@@ -85,7 +85,7 @@ const SettingsScreen = () => {
         <Text>Nyelv beállítás</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.option} onPress={() => navigation.navigate("Terms")}>
+      <TouchableOpacity style={styles.option} onPress={() => navigation.navigate("Terms")}>  
         <Text>Felhasználási feltételek</Text>
       </TouchableOpacity>
 
@@ -131,9 +131,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   optionRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     width: "90%",
     alignSelf: "center",
     padding: 15,

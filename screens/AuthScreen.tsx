@@ -139,12 +139,15 @@ const AuthScreen = () => {
             />
 
             <TouchableOpacity onPress={() => setAcceptedTerms(!acceptedTerms)}>
-              <Text style={styles.terms}>
-                {acceptedTerms ? "☑ Elfogadom" : "☐ Elfogadom"}{" "}
-                <Text style={styles.termsLink} onPress={() => setShowTerms(true)}>
-                  a felhasználási feltételeket és adatvédelmi irányelveket
-                </Text>
-              </Text>
+  <Text style={styles.terms}>
+    {acceptedTerms ? "☑ Elfogadom" : "☐ Elfogadom"}{" "}
+    <Text
+      style={styles.termsLink}
+      onPress={() => navigation.navigate("Terms")} // 📌 Navigálás a TermsScreen-re
+    >
+      a felhasználási feltételeket és adatvédelmi irányelveket
+    </Text>
+  </Text>
             </TouchableOpacity>
           </>
         )}

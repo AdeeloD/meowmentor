@@ -68,7 +68,7 @@ const SettingsScreen = () => {
         <Text>Profil kezelése</Text>
       </TouchableOpacity>
       
-      <TouchableOpacity style={styles.option}>
+      <TouchableOpacity style={styles.option} onPress={() => navigation.navigate("Notification")}>
         <Text>Értesítések kezelése</Text>
       </TouchableOpacity>
 
@@ -81,7 +81,7 @@ const SettingsScreen = () => {
         <Switch value={isDarkMode} onValueChange={setIsDarkMode} />
       </View>
 
-      <TouchableOpacity style={styles.option}>
+      <TouchableOpacity style={styles.option} onPress={() => Alert.alert("Nyelv beállítás", "Ez a funkció jelenleg nem elérhető.")}>
         <Text>Nyelv beállítás</Text>
       </TouchableOpacity>
 

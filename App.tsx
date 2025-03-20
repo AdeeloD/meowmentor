@@ -12,6 +12,7 @@ import AuthScreen from "./screens/AuthScreen";
 import { RootStackParamList } from "./navigation";
 import TermsScreen from "./screens/TermsScreen";
 import AccountSettingsScreen from "./screens/AccountSettingsScreen";
+import NotificationScreen from "./screens/NotificationScreen";
 
 const Stack = createStackNavigator<RootStackParamList>();
 
@@ -28,6 +29,7 @@ export default function App() {
         <Stack.Screen name="Settings" component={SettingsScreen} />
         <Stack.Screen name="Calendar" component={CalendarScreen} />
         <Stack.Screen name="Terms" component={TermsScreen} />
+         <Stack.Screen name="Notification" component={NotificationScreen} />
         <Stack.Screen name="AccountSettings" component={AccountSettingsScreen} />
       </Stack.Navigator>
     </NavigationContainer>

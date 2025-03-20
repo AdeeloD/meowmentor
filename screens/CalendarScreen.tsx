@@ -1,29 +1,44 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, ScrollView } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { getFirestore, doc, getDoc, setDoc } from "firebase/firestore";
+import { getAuth } from "firebase/auth";
 
 const CalendarScreen = () => {
+  const db = getFirestore();
+  const auth = getAuth();
+  const user = auth.currentUser;
+
   const [dailyInteractions, setDailyInteractions] = useState<{ [key: string]: any }>({});
 
   useEffect(() => {
+    if (!user) return;
+
     const loadData = async () => {
-      const storedData = await AsyncStorage.getItem("dailyInteractions");
-      if (storedData) {
-        setDailyInteractions(JSON.parse(storedData));
+      try {
+        const userRef = doc(db, "users", user.uid);
+        const userSnap = await getDoc(userRef);
+
+        if (userSnap.exists()) {
+          const data = userSnap.data();
+          setDailyInteractions(data.dailyInteractions || {});
+        }
+      } catch (error) {
+        console.error("🔥 Hiba a Firestore-ból való naptár lekéréskor:", error);
       }
     };
+
     loadData();
-  }, []);
+  }, [user]);
 
   return (
     <ScrollView style={styles.container}>
-      <Text style={styles.title}>Gondoskodási Naptár</Text>
+      <Text style={styles.title}>📅 Gondoskodási Naptár</Text>
       {Object.entries(dailyInteractions).map(([date, actions]) => (
         <View key={date} style={styles.entry}>
           <Text style={styles.date}>{date}</Text>
           {Object.entries(actions).map(([action, count]) => (
             <Text key={action} style={styles.action}>
-              {`${action}: ${count} alkalom`} {/* 📌 Itt biztosítjuk, hogy mindig szöveg legyen */}
+              {`${action}: ${count} alkalom`}
             </Text>
           ))}
         </View>

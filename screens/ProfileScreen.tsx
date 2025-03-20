@@ -8,32 +8,54 @@ import {
   Image,
   TextInput,
 } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
+import { getAuth } from "firebase/auth";
 import * as ImagePicker from "expo-image-picker";
 import { useNavigation } from "@react-navigation/native";
-import type { StackNavigationProp } from "@react-navigation/stack";
-import { RootStackParamList } from "../navigation";
+
+
+type DailyInteractions = {
+  [key: string]: { [action: string]: number };
+};
 
 const ProfileScreen = () => {
-  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+  const navigation = useNavigation();
+  const db = getFirestore();
+  const auth = getAuth();
+  const user = auth.currentUser;
+
   const [catImage, setCatImage] = useState<string | null>(null);
   const [catName, setCatName] = useState("");
-  const [dailyInteractions, setDailyInteractions] = useState<{ [key: string]: number }>({});
+  const [dailyInteractions, setDailyInteractions] = useState<DailyInteractions>({});
 
   useEffect(() => {
-    const loadData = async () => {
-      const storedImage = await AsyncStorage.getItem("catImage");
-      if (storedImage) setCatImage(storedImage);
+    if (!user) return;
 
-      const storedName = await AsyncStorage.getItem("catName");
-      if (storedName) setCatName(storedName);
+    const loadData = async () => {
+      try {
+        const userRef = doc(db, "users", user.uid);
+        const userSnap = await getDoc(userRef);
+
+        if (userSnap.exists()) {
+          const data = userSnap.data();
+          setCatImage(data.profilePicture || null);
+          setCatName(data.catName || "");
+          setDailyInteractions(data.dailyInteractions || {});
+        }
+      } catch (error) {
+        console.error("🔥 Hiba a Firestore adatok betöltésekor:", error);
+      }
     };
+
     loadData();
-  }, []);
+  }, [user]);
 
   const saveCatName = async (name: string) => {
     setCatName(name);
-    await AsyncStorage.setItem("catName", name);
+    if (!user) return;
+
+    const userRef = doc(db, "users", user.uid);
+    await setDoc(userRef, { catName: name }, { merge: true });
   };
 
   const pickImage = async () => {
@@ -44,29 +66,37 @@ const ProfileScreen = () => {
       quality: 1,
     });
 
-    if (!result.canceled) {
+    if (!result.canceled && user) {
       setCatImage(result.assets[0].uri);
-      await AsyncStorage.setItem("catImage", result.assets[0].uri);
+
+      const userRef = doc(db, "users", user.uid);
+      await setDoc(userRef, { profilePicture: result.assets[0].uri }, { merge: true });
     }
   };
 
   const handleInteraction = async (action: string) => {
+    if (!user) return;
+
     const today = new Date().toISOString().split("T")[0];
-    const storedData = await AsyncStorage.getItem("dailyInteractions");
-    const parsedData = storedData ? JSON.parse(storedData) : {};
-    
-    const updatedData = {
-      ...parsedData,
+
+    const updatedData: DailyInteractions = {
+      ...dailyInteractions,
       [today]: {
-        ...parsedData[today],
-        [action]: (parsedData[today]?.[action] || 0) + 1,
+        ...(dailyInteractions[today] || {}),
+        [action]: (dailyInteractions[today]?.[action] || 0) + 1,
       },
     };
 
     setDailyInteractions(updatedData);
-    await AsyncStorage.setItem("dailyInteractions", JSON.stringify(updatedData));
+    const userRef = doc(db, "users", user.uid);
+    await setDoc(userRef, { dailyInteractions: updatedData }, { merge: true });
 
-    Alert.alert("Siker!", `Sikeresen elvégezted: ${action}`);
+    // 🔹 Alert üzenet a felhasználónak interakció után
+    Alert.alert(
+      "✅ Sikeres művelet!",
+      `A cica ${action} megtörtént! 🐾`,
+      [{ text: "OK", onPress: () => console.log(`${action} megerősítve`) }]
+    );
   };
 
   return (
@@ -83,7 +113,7 @@ const ProfileScreen = () => {
         {catImage ? (
           <Image source={{ uri: catImage }} style={styles.image} />
         ) : (
-          <Text style={styles.imagePlaceholder}>Kép kiválasztása</Text>
+          <Text style={styles.imagePlaceholder}>📷 Kép kiválasztása</Text>
         )}
       </TouchableOpacity>
 

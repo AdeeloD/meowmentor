@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, Switch, StyleSheet, Alert } from "react-native";
 import * as Notifications from "expo-notifications";
-import * as Permissions from "expo-permissions";
 import { getAuth } from "firebase/auth";
-import { db } from "../services/config/firebaseConfig"; // Ha szükséges a Firestore
+import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
+import { enableNetwork, disableNetwork } from "firebase/firestore";
+import { db } from "../services/config/firebaseConfig";
 
 const NotificationScreen = () => {
   const [notificationEnabled, setNotificationEnabled] = useState(false);
@@ -11,33 +12,26 @@ const NotificationScreen = () => {
 
   useEffect(() => {
     checkNotificationPermission();
-
-    // Ha engedélyezve van, naponta egyszer küldjön értesítést
-    if (notificationEnabled) {
-      scheduleDailyNotification();
-    }
-  }, [notificationEnabled]);
+    setupFirestoreConnection();
+  }, []);
 
   const checkNotificationPermission = async () => {
-    const { status } = await Permissions.getAsync(Permissions.NOTIFICATIONS);
+    const { status } = await Notifications.getPermissionsAsync();
     setNotificationEnabled(status === "granted");
   };
 
   const toggleNotification = async () => {
     if (notificationEnabled) {
-      // Ha a felhasználó letiltja az értesítéseket
       await Notifications.setNotificationHandler({
-        handleNotification: async () => {
-          return {
-            shouldShowAlert: false,
-            shouldPlaySound: false,
-            shouldSetBadge: false,
-          };
-        },
+        handleNotification: async () => ({
+          shouldShowAlert: false,
+          shouldPlaySound: false,
+          shouldSetBadge: false,
+        }),
       });
+      setNotificationEnabled(false);
     } else {
-      // Ha a felhasználó engedélyezi az értesítéseket
-      const { status } = await Permissions.askAsync(Permissions.NOTIFICATIONS);
+      const { status } = await Notifications.requestPermissionsAsync();
       if (status === "granted") {
         setNotificationEnabled(true);
       } else {
@@ -47,10 +41,6 @@ const NotificationScreen = () => {
   };
 
   const scheduleDailyNotification = async () => {
-    // Külön értesítési üzenet beállítása
-    const trigger = new Date();
-    trigger.setHours(9, 0, 0, 0); // Minden nap 9:00-kor értesítés
-
     await Notifications.scheduleNotificationAsync({
       content: {
         title: "💬 Napi emlékeztető",
@@ -60,8 +50,20 @@ const NotificationScreen = () => {
         hour: 9,
         minute: 0,
         repeats: true,
-      },
+        type: "calendar", 
+      } as Notifications.NotificationTriggerInput, 
     });
+  };
+  
+
+  const setupFirestoreConnection = async () => {
+    try {
+      await enableNetwork(db);
+      console.log("✅ Firestore kapcsolat aktív.");
+    } catch (error) {
+      console.error("🔥 Firestore kapcsolat hiba:", error);
+      await disableNetwork(db);
+    }
   };
 
   return (
@@ -72,10 +74,10 @@ const NotificationScreen = () => {
           ? "A push értesítések engedélyezve vannak."
           : "Engedélyezd a push értesítéseket, hogy értesítést kapj fontos eseményekről!"}
       </Text>
-      <Switch
+      <Switch 
         value={notificationEnabled}
         onValueChange={toggleNotification}
-        thumbColor={notificationEnabled ? "#4CAF50" : "#F44336"}
+        thumbColor={notificationEnabled ? "#D3D3D3" : "#D3D3D3"}
       />
     </View>
   );

@@ -13,6 +13,7 @@ export type RootStackParamList = {
   Terms: undefined;
   AccountSettings: undefined;
   Notification: undefined;
+  Privacy: undefined;
 };
 
 export type NavigationProps<T extends keyof RootStackParamList> = {

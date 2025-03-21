@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -7,17 +7,24 @@ import {
   Alert,
   Switch,
   ScrollView,
+  TextInput,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import type { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../navigation";
 import { logout } from "../services/auth";
-import { deleteUser } from "firebase/auth";
+import {
+  deleteUser,
+  EmailAuthProvider,
+  reauthenticateWithCredential,
+} from "firebase/auth";
 import { auth } from "../services/config/firebaseConfig";
 
 const SettingsScreen = () => {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
-  const [isDarkMode, setIsDarkMode] = React.useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleLogout = async () => {
     try {
@@ -32,27 +39,61 @@ const SettingsScreen = () => {
   };
 
   const handleDeleteAccount = async () => {
+    const user = auth.currentUser;
+
+    if (!user) {
+      Alert.alert("Hiba", "Nincs bejelentkezett felhasználó.");
+      return;
+    }
+
     Alert.alert(
       "Fiók törlése",
-      "Biztosan törölni szeretnéd a fiókodat? Ez a művelet visszavonhatatlan.",
+      "Biztosan törölni szeretnéd a fiókodat? Ez a művelet végleges.",
       [
         { text: "Mégse", style: "cancel" },
         {
           text: "Törlés",
           style: "destructive",
           onPress: async () => {
+            setLoading(true);
             try {
-              const user = auth.currentUser;
-              if (user) {
-                await deleteUser(user);
-                Alert.alert("Siker", "A fiókod törölve lett.");
-                navigation.reset({
-                  index: 0,
-                  routes: [{ name: "Auth" }],
-                });
+              if (!password) {
+                Alert.alert(
+                  "Hiba",
+                  "Biztonsági okokból előbb add meg a jelszavad!"
+                );
+                setLoading(false);
+                return;
               }
-            } catch (error) {
-              Alert.alert("Hiba", "Nem sikerült törölni a fiókot. Jelentkezz be újra, majd próbáld újra.");
+
+              // 🔹 Újrahitelesítés
+              const credential = EmailAuthProvider.credential(
+                user.email || "",
+                password
+              );
+              await reauthenticateWithCredential(user, credential);
+
+              // 🔥 Fiók törlése
+              await deleteUser(user);
+              Alert.alert("Siker", "A fiókod törölve lett.");
+              navigation.reset({
+                index: 0,
+                routes: [{ name: "Auth" }],
+              });
+            } catch (error: any) {
+              if (error.code === "auth/requires-recent-login") {
+                Alert.alert(
+                  "Hiba",
+                  "Biztonsági okokból jelentkezz be újra, majd próbáld meg ismét."
+                );
+              } else {
+                Alert.alert(
+                  "Hiba",
+                  "Nem sikerült törölni a fiókot. Ellenőrizd a jelszót vagy próbáld újra később."
+                );
+              }
+            } finally {
+              setLoading(false);
             }
           },
         },
@@ -63,16 +104,22 @@ const SettingsScreen = () => {
   return (
     <ScrollView style={styles.container}>
       <Text style={styles.title}>Beállítások</Text>
-      
-      <TouchableOpacity style={styles.option} onPress={() => navigation.navigate("AccountSettings")}>  
+
+      <TouchableOpacity
+        style={styles.option}
+        onPress={() => navigation.navigate("AccountSettings")}
+      >
         <Text>Profil kezelése</Text>
       </TouchableOpacity>
-      
-      <TouchableOpacity style={styles.option} onPress={() => navigation.navigate("Notification")}>
+
+      <TouchableOpacity
+        style={styles.option}
+        onPress={() => navigation.navigate("Notification")}
+      >
         <Text>Értesítések kezelése</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.option}>
+      <TouchableOpacity style={styles.option} onPress={() => navigation.navigate("Privacy")}>
         <Text>Adatvédelem és biztonság</Text>
       </TouchableOpacity>
 
@@ -81,11 +128,19 @@ const SettingsScreen = () => {
         <Switch value={isDarkMode} onValueChange={setIsDarkMode} />
       </View>
 
-      <TouchableOpacity style={styles.option} onPress={() => Alert.alert("Nyelv beállítás", "Ez a funkció jelenleg nem elérhető.")}>
+      <TouchableOpacity
+        style={styles.option}
+        onPress={() =>
+          Alert.alert("Nyelv beállítás", "Ez a funkció jelenleg nem elérhető.")
+        }
+      >
         <Text>Nyelv beállítás</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.option} onPress={() => navigation.navigate("Terms")}>  
+      <TouchableOpacity
+        style={styles.option}
+        onPress={() => navigation.navigate("Terms")}
+      >
         <Text>Felhasználási feltételek</Text>
       </TouchableOpacity>
 
@@ -97,10 +152,26 @@ const SettingsScreen = () => {
         <Text>Alkalmazás verziója: 1.0.0</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.deleteButton} onPress={handleDeleteAccount}>
-        <Text style={styles.deleteText}>Fiók törlése</Text>
+      {/* 🔹 Jelszó bekérése a törlés előtt */}
+      <TextInput
+        style={styles.input}
+        placeholder="Jelszó"
+        placeholderTextColor="#666"
+        secureTextEntry
+        value={password}
+        onChangeText={setPassword}
+      />
+
+      <TouchableOpacity
+        style={styles.deleteButton}
+        onPress={handleDeleteAccount}
+        disabled={loading}
+      >
+        <Text style={styles.deleteText}>
+          {loading ? "Törlés folyamatban..." : "Fiók törlése"}
+        </Text>
       </TouchableOpacity>
-      
+
       <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
         <Text style={styles.logoutText}>Kijelentkezés a fiókból</Text>
       </TouchableOpacity>
@@ -131,14 +202,25 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   optionRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     width: "90%",
     alignSelf: "center",
     padding: 15,
     backgroundColor: "white",
     borderRadius: 10,
+    marginBottom: 10,
+  },
+  input: {
+    width: "90%",
+    padding: 12,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 8,
+    backgroundColor: "#fff",
+    fontSize: 16,
+    alignSelf: "center",
     marginBottom: 10,
   },
   deleteButton: {
@@ -155,11 +237,6 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 16,
   },
-  logoutText: {
-    color: "white",
-    fontWeight: "bold",
-    fontSize: 16,
-  },
   logoutButton: {
     width: "90%",
     alignSelf: "center",
@@ -168,11 +245,11 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginTop: 20,
     alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 3,
-    elevation: 5,
+  },
+  logoutText: {
+    color: "white",
+    fontWeight: "bold",
+    fontSize: 16,
   },
 });
 

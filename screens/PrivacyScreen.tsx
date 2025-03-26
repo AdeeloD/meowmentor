@@ -60,7 +60,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "#FFD700",
+    color: "white",
     marginTop: 15,
     marginBottom: 5,
   },
@@ -70,12 +70,12 @@ const styles = StyleSheet.create({
     lineHeight: 22,
   },
   link: {
-    color: "#FFD700",
+    color: "white",
     fontWeight: "bold",
   },
   button: {
     marginTop: 20,
-    backgroundColor: "#FFD700",
+    backgroundColor: "white",
     padding: 15,
     borderRadius: 8,
     alignItems: "center",

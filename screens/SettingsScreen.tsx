@@ -144,7 +144,8 @@ const SettingsScreen = () => {
         <Text>Felhasználási feltételek</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.option}>
+      <TouchableOpacity style={styles.option}
+      onPress={() => navigation.navigate("SupportFeedback")}>
         <Text>Támogatás és visszajelzés</Text>
       </TouchableOpacity>
 

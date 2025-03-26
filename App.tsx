@@ -14,6 +14,7 @@ import TermsScreen from "./screens/TermsScreen";
 import AccountSettingsScreen from "./screens/AccountSettingsScreen";
 import NotificationScreen from "./screens/NotificationScreen";
 import PrivacyScreen from "./screens/PrivacyScreen";
+import SupportFeedbackScreen from "./screens/SupportFeedbackScreen";
 
 const Stack = createStackNavigator<RootStackParamList>();
 
@@ -33,6 +34,7 @@ export default function App() {
          <Stack.Screen name="Notification" component={NotificationScreen} />
         <Stack.Screen name="AccountSettings" component={AccountSettingsScreen} />
         <Stack.Screen name="Privacy" component={PrivacyScreen} />
+        <Stack.Screen name="SupportFeedback" component={SupportFeedbackScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

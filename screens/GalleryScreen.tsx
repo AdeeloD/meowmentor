@@ -7,7 +7,6 @@ import { FontAwesome } from '@expo/vector-icons';
 const GalleryScreen = () => {
   const [images, setImages] = useState<string[]>([]);
 
-  // Képek betöltése AsyncStorage-ból
   useEffect(() => {
     const loadImages = async () => {
       try {
@@ -19,11 +18,9 @@ const GalleryScreen = () => {
         console.error('Hiba az adatok betöltésekor:', error);
       }
     };
-
     loadImages();
   }, []);
 
-  // Kép kiválasztása és mentése
   const pickImage = async () => {
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (permissionResult.status !== 'granted') {
@@ -42,14 +39,12 @@ const GalleryScreen = () => {
       setImages(newImages);
       await AsyncStorage.setItem('galleryImages', JSON.stringify(newImages));
 
-      // Mérföldkő feloldása ha legalább 3 kép van feltöltve
       if (newImages.length === 3) {
         unlockMilestone();
       }
     }
   };
 
-  // Mérföldkő feloldása
   const unlockMilestone = async () => {
     try {
       const storedMilestones = await AsyncStorage.getItem('unlockedMilestones');
@@ -65,25 +60,41 @@ const GalleryScreen = () => {
     }
   };
 
+  const deleteImage = async (uri: string) => {
+    Alert.alert('Kép törlése', 'Biztosan törölni szeretnéd ezt a képet?', [
+      { text: 'Mégse', style: 'cancel' },
+      {
+        text: 'Törlés',
+        style: 'destructive',
+        onPress: async () => {
+          const updatedImages = images.filter((img) => img !== uri);
+          setImages(updatedImages);
+          await AsyncStorage.setItem('galleryImages', JSON.stringify(updatedImages));
+        },
+      },
+    ]);
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Galéria</Text>
 
-      {/* Képfeltöltés gomb */}
       <TouchableOpacity style={styles.uploadButton} onPress={pickImage}>
         <FontAwesome name="plus" size={24} color="#FFFFFF" />
         <Text style={styles.buttonText}>Kép hozzáadása</Text>
       </TouchableOpacity>
 
-      {/* Képek megjelenítése */}
       <FlatList
         data={images}
         keyExtractor={(item, index) => index.toString()}
         numColumns={2}
         renderItem={({ item }) => (
-          <View style={styles.imageContainer}>
+          <TouchableOpacity
+            style={styles.imageContainer}
+            onLongPress={() => deleteImage(item)}
+          >
             <Image source={{ uri: item }} style={styles.image} />
-          </View>
+          </TouchableOpacity>
         )}
       />
     </View>

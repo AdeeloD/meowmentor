@@ -16,7 +16,8 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import { useNavigation } from "@react-navigation/native";
 import type { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../navigation";
-import { register, login } from "../services/auth";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import { getFirestore, setDoc, doc } from "firebase/firestore";
 
 const AuthScreen = () => {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
@@ -34,6 +35,9 @@ const AuthScreen = () => {
 
   const handleAuth = async () => {
     setError(null);
+    const auth = getAuth();
+    const db = getFirestore();
+
     try {
       if (isRegistering) {
         if (password !== confirmPassword) {
@@ -45,16 +49,23 @@ const AuthScreen = () => {
           return;
         }
 
-        const newUser = await register(email, password, name, birthdate);
-        if (newUser) {
-          setIsRegistering(false);
-          setEmail("");
-          setPassword("");
-          setConfirmPassword("");
-          Alert.alert("Sikeres regisztráció!");
-        }
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+
+        await setDoc(doc(db, "users", user.uid), {
+          name,
+          email,
+          birthdate: birthdate.toISOString(),
+          createdAt: new Date().toISOString(),
+        });
+
+        setIsRegistering(false);
+        setEmail("");
+        setPassword("");
+        setConfirmPassword("");
+        Alert.alert("Sikeres regisztráció!");
       } else {
-        const loggedInUser = await login(email, password);
+        const loggedInUser = await signInWithEmailAndPassword(auth, email, password);
         if (loggedInUser) {
           navigation.reset({
             index: 0,
@@ -101,7 +112,7 @@ const AuthScreen = () => {
                       setShowDatePicker(false);
                       if (date) setBirthdate(date);
                     }}
-                    textColor={Platform.OS === "ios" ? "black" : undefined} 
+                    textColor={Platform.OS === "ios" ? "black" : undefined}
                   />
                   <Button title="OK" onPress={() => setShowDatePicker(false)} />
                 </View>
@@ -139,15 +150,15 @@ const AuthScreen = () => {
             />
 
             <TouchableOpacity onPress={() => setAcceptedTerms(!acceptedTerms)}>
-  <Text style={styles.terms}>
-    {acceptedTerms ? "☑ Elfogadom" : "☐ Elfogadom"}{" "}
-    <Text
-      style={styles.termsLink}
-      onPress={() => navigation.navigate("Terms")} // 📌 Navigálás a TermsScreen-re
-    >
-      a felhasználási feltételeket és adatvédelmi irányelveket
-    </Text>
-  </Text>
+              <Text style={styles.terms}>
+                {acceptedTerms ? "☑ Elfogadom" : "☐ Elfogadom"}{" "}
+                <Text
+                  style={styles.termsLink}
+                  onPress={() => navigation.navigate("Terms")}
+                >
+                  a felhasználási feltételeket és adatvédelmi irányelveket
+                </Text>
+              </Text>
             </TouchableOpacity>
           </>
         )}

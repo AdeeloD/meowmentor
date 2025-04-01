@@ -45,9 +45,26 @@ const MilestonesScreen = () => {
         if (data?.catName) result.push("🐱 Cica neve rögzítve");
         if (data?.profilePicture) result.push("📸 Profilkép beállítva");
 
-        if (data?.dailyInteractions?.feeding) result.push("🍽️ Etetés megtörtént");
-        if (data?.dailyInteractions?.drinking) result.push("💧 Itatás megtörtént");
-        if (data?.dailyInteractions?.playing) result.push("🎾 Játék rögzítve");
+        if (data?.dailyInteractions?.feeding) result.push("🍽️ Első etetés megtörtént");
+        if (data?.dailyInteractions?.drinking) result.push("💧 Első itatás megtörtént");
+        if (data?.dailyInteractions?.playing) result.push("🎾 Első játék rögzítve");
+
+        // 🔢 Cica életkora regisztráció alapján
+        if (data?.createdAt) {
+          const regDate = new Date(data.createdAt);
+          const now = new Date();
+          const diffInMs = now.getTime() - regDate.getTime();
+          const diffInDays = diffInMs / (1000 * 60 * 60 * 24);
+
+          if (diffInDays >= 30 && diffInDays < 60) {
+            result.push("📅 A cica 1 hónapos lett!");
+          } else if (diffInDays >= 365 && diffInDays < 730) {
+            result.push("🎉 A cica 1 éves lett!");
+          } else if (diffInDays >= 730) {
+            const years = Math.floor(diffInDays / 365);
+            result.push(`🎉 A cica ${years} éves lett!`);
+          }
+        }
 
         setMilestones(result);
       } catch (error) {

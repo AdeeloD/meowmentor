@@ -12,6 +12,9 @@ import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import * as ImagePicker from "expo-image-picker";
 import { useNavigation } from "@react-navigation/native";
+import GombolyagIcon from "../assets/gombolyagicon.png";
+import KajastalIcon from "../assets/kajastalicon.png";
+import VizIcon from "../assets/vizcseppicon.png";
 
 
 type DailyInteractions = {
@@ -118,15 +121,18 @@ const ProfileScreen = () => {
       </TouchableOpacity>
 
       <TouchableOpacity style={styles.button} onPress={() => handleInteraction("Etetés")}>
-        <Text style={styles.buttonText}>🐱 Etetés</Text>
+        <Image source={KajastalIcon} style={styles.iconk}/>
+        <Text style={styles.buttonText}>Etetés</Text>
       </TouchableOpacity>
 
       <TouchableOpacity style={styles.button} onPress={() => handleInteraction("Itatás")}>
-        <Text style={styles.buttonText}>💧 Itatás</Text>
+        <Image source={VizIcon} style={styles.icon}/>
+        <Text style={styles.buttonText}>Itatás</Text>
       </TouchableOpacity>
 
       <TouchableOpacity style={styles.button} onPress={() => handleInteraction("Játék")}>
-        <Text style={styles.buttonText}>🎾 Játék</Text>
+        <Image source={GombolyagIcon} style={styles.icon}/>
+        <Text style={styles.buttonText}>Játék</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
@@ -175,6 +181,8 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   button: {
+     flexDirection: "row",
+    justifyContent: "center",
     backgroundColor: "#fff",
     padding: 15,
     borderRadius: 10,
@@ -186,6 +194,16 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: "#333",
   },
+  icon: {
+    width: 28,
+    height: 28,
+    marginRight: 10,
+  },
+  iconk:{
+    width: 35,
+    height: 35,
+    marginRight: 10,
+  }
 });
 
 export default ProfileScreen;

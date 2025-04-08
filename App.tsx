@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import HomeScreen from "./screens/HomeScreen";
@@ -16,9 +16,16 @@ import NotificationScreen from "./screens/NotificationScreen";
 import PrivacyScreen from "./screens/PrivacyScreen";
 import SupportFeedbackScreen from "./screens/SupportFeedbackScreen";
 
+// 🔔 Értesítés funkció betöltése
+import { scheduleHydrationReminder } from "./services/notificationService";
+
 const Stack = createStackNavigator<RootStackParamList>();
 
 export default function App() {
+  useEffect(() => {
+    scheduleHydrationReminder();
+  }, []);
+
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Auth">
@@ -31,7 +38,7 @@ export default function App() {
         <Stack.Screen name="Settings" component={SettingsScreen} />
         <Stack.Screen name="Calendar" component={CalendarScreen} />
         <Stack.Screen name="Terms" component={TermsScreen} />
-         <Stack.Screen name="Notification" component={NotificationScreen} />
+        <Stack.Screen name="Notification" component={NotificationScreen} />
         <Stack.Screen name="AccountSettings" component={AccountSettingsScreen} />
         <Stack.Screen name="Privacy" component={PrivacyScreen} />
         <Stack.Screen name="SupportFeedback" component={SupportFeedbackScreen} />

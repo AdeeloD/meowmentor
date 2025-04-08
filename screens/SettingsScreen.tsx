@@ -22,7 +22,6 @@ import { auth } from "../services/config/firebaseConfig";
 
 const SettingsScreen = () => {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
-  const [isDarkMode, setIsDarkMode] = useState(false);
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -122,11 +121,6 @@ const SettingsScreen = () => {
       <TouchableOpacity style={styles.option} onPress={() => navigation.navigate("Privacy")}>
         <Text>Adatvédelem és biztonság</Text>
       </TouchableOpacity>
-
-      <View style={styles.optionRow}>
-        <Text>Dark Mode</Text>
-        <Switch value={isDarkMode} onValueChange={setIsDarkMode} />
-      </View>
 
       <TouchableOpacity
         style={styles.option}

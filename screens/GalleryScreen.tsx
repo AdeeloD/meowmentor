@@ -3,14 +3,20 @@ import { View, Text, StyleSheet, FlatList, Image, TouchableOpacity, Alert } from
 import * as ImagePicker from 'expo-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { FontAwesome } from '@expo/vector-icons';
+import { getAuth } from 'firebase/auth';
 
 const GalleryScreen = () => {
+  const auth = getAuth();
+  const user = auth.currentUser;
   const [images, setImages] = useState<string[]>([]);
+
+  const storageKey = `galleryImages_${user?.uid}`;
+  const milestoneKey = `unlockedMilestones_${user?.uid}`;
 
   useEffect(() => {
     const loadImages = async () => {
       try {
-        const storedImages = await AsyncStorage.getItem('galleryImages');
+        const storedImages = await AsyncStorage.getItem(storageKey);
         if (storedImages) {
           setImages(JSON.parse(storedImages));
         }
@@ -18,8 +24,9 @@ const GalleryScreen = () => {
         console.error('Hiba az adatok betöltésekor:', error);
       }
     };
-    loadImages();
-  }, []);
+
+    if (user) loadImages();
+  }, [user]);
 
   const pickImage = async () => {
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -34,10 +41,10 @@ const GalleryScreen = () => {
       quality: 1,
     });
 
-    if (!result.canceled) {
+    if (!result.canceled && user) {
       const newImages = [...images, result.assets[0].uri];
       setImages(newImages);
-      await AsyncStorage.setItem('galleryImages', JSON.stringify(newImages));
+      await AsyncStorage.setItem(storageKey, JSON.stringify(newImages));
 
       if (newImages.length === 3) {
         unlockMilestone();
@@ -47,13 +54,13 @@ const GalleryScreen = () => {
 
   const unlockMilestone = async () => {
     try {
-      const storedMilestones = await AsyncStorage.getItem('unlockedMilestones');
+      const storedMilestones = await AsyncStorage.getItem(milestoneKey);
       const unlockedMilestones = storedMilestones ? JSON.parse(storedMilestones) : [];
 
       if (!unlockedMilestones.includes('upload_3_photos')) {
         const updatedMilestones = [...unlockedMilestones, 'upload_3_photos'];
-        await AsyncStorage.setItem('unlockedMilestones', JSON.stringify(updatedMilestones));
-        Alert.alert('Mérföldkő feloldva!', 'Fotóalbum: Legalább 3 képet feltöltöttél!');
+        await AsyncStorage.setItem(milestoneKey, JSON.stringify(updatedMilestones));
+        Alert.alert('🎉 Mérföldkő feloldva!', 'Fotóalbum: Legalább 3 képet feltöltöttél!');
       }
     } catch (error) {
       console.error('Hiba a mérföldkő mentésekor:', error);
@@ -69,7 +76,7 @@ const GalleryScreen = () => {
         onPress: async () => {
           const updatedImages = images.filter((img) => img !== uri);
           setImages(updatedImages);
-          await AsyncStorage.setItem('galleryImages', JSON.stringify(updatedImages));
+          await AsyncStorage.setItem(storageKey, JSON.stringify(updatedImages));
         },
       },
     ]);

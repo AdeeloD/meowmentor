@@ -30,6 +30,6 @@ export async function scheduleHydrationReminder() {
       type: "timeInterval",
       seconds: 600, // 10 perc
       repeats: true,
-    } as Notifications.TimeIntervalTriggerInput, // ✅ ez a fix a TS hibára
+    } as Notifications.TimeIntervalTriggerInput,
   });
 }

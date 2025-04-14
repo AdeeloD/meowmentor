@@ -65,14 +65,14 @@ const SettingsScreen = () => {
                 return;
               }
 
-              // 🔹 Újrahitelesítés
+              
               const credential = EmailAuthProvider.credential(
                 user.email || "",
                 password
               );
               await reauthenticateWithCredential(user, credential);
 
-              // 🔥 Fiók törlése
+              
               await deleteUser(user);
               Alert.alert("Siker", "A fiókod törölve lett.");
               navigation.reset({

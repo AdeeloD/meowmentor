@@ -16,7 +16,7 @@ import NotificationScreen from "./screens/NotificationScreen";
 import PrivacyScreen from "./screens/PrivacyScreen";
 import SupportFeedbackScreen from "./screens/SupportFeedbackScreen";
 
-// 🔔 Értesítés funkció betöltése
+
 import { scheduleHydrationReminder } from "./services/notificationService";
 
 const Stack = createStackNavigator<RootStackParamList>();

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 
-// Tippek adatstruktúrája
+
 const tipsData = [
   { id: '1', category: 'Etetés', tip: 'A macskáknak napi 2-3 étkezésre van szükségük.' },
   { id: '2', category: 'Etetés', tip: 'Ne adj csokoládét vagy hagymát a macskádnak, mert mérgezőek.' },

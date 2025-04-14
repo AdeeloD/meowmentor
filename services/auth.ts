@@ -1,7 +1,7 @@
 import { auth } from "../services/config/firebaseConfig";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile } from "firebase/auth";
 
-// E-mail és jelszó validációs függvények
+
 const isValidEmail = (email: string) => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
@@ -26,7 +26,7 @@ export const register = async (email: string, password: string, name: string, bi
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
 
-    // Felhasználói név beállítása
+    
     await updateProfile(user, {
       displayName: name,
     });

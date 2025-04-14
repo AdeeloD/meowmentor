@@ -1,11 +1,11 @@
-// config/notificationService.ts
+
 
 import * as Notifications from "expo-notifications";
 import * as Device from "expo-device";
 import { Platform } from "react-native";
 
 export async function scheduleHydrationReminder() {
-  // 🔧 Csatorna létrehozása Androidon kötelező
+  
   if (Platform.OS === "android") {
     await Notifications.setNotificationChannelAsync("default", {
       name: "Alapértelmezett",
@@ -20,7 +20,7 @@ export async function scheduleHydrationReminder() {
     return;
   }
 
-  // 🔔 10 percenkénti ismétlődő emlékeztető
+ 
   await Notifications.scheduleNotificationAsync({
     content: {
       title: "💧 Itt az ideje!",

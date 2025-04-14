@@ -1,4 +1,4 @@
-import { db } from "./firebaseConfig"; // ✅ Helyes importálás
+import { db } from "./firebaseConfig"; 
 import {
   doc,
   setDoc,
@@ -6,9 +6,7 @@ import {
   updateDoc,
 } from "firebase/firestore";
 
-/**
- * 🔹 Felhasználói adatok mentése Firestore-ba (ha még nincs, létrehozza)
- */
+
 export const saveUserData = async (
   userUid: string,
   data: any
@@ -22,9 +20,7 @@ export const saveUserData = async (
   }
 };
 
-/**
- * 🔹 Felhasználói adatok lekérése Firestore-ból
- */
+
 export const loadUserData = async (userUid: string): Promise<any> => {
   try {
     const snapshot = await getDoc(doc(db, "users", userUid));
@@ -40,9 +36,7 @@ export const loadUserData = async (userUid: string): Promise<any> => {
   }
 };
 
-/**
- * 🔹 Új milestone hozzáadása a felhasználó Firestore adatához (nem alkollekció!)
- */
+
 export const saveMilestone = async (
   userUid: string,
   milestone: { id: string; title: string }
@@ -68,9 +62,7 @@ export const saveMilestone = async (
   }
 };
 
-/**
- * 🔹 Milestone-ok lekérése a Firestore-ból
- */
+
 export const loadMilestones = async (userUid: string): Promise<any[]> => {
   try {
     const userRef = doc(db, "users", userUid);

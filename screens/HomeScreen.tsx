@@ -14,7 +14,7 @@ const HomeScreen = () => {
 
   return (
     <View style={styles.container}>
-      {/* FIX KÉP: A felhasználó már nem tud képet választani */}
+      
       <Image source={require('../assets/cat.png')} style={styles.catImage} resizeMode="cover" />
 
       <View style={styles.iconContainer}>

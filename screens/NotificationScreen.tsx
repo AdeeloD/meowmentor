@@ -14,7 +14,7 @@ import { enableNetwork, disableNetwork } from "firebase/firestore";
 
 const NOTIF_KEY = "dailyNotificationId";
 
-// 🔔 Notification handler (kötelező az azonnali értesítésekhez)
+
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,

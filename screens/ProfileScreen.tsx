@@ -94,7 +94,7 @@ const ProfileScreen = () => {
     const userRef = doc(db, "users", user.uid);
     await setDoc(userRef, { dailyInteractions: updatedData }, { merge: true });
 
-    // 🔹 Alert üzenet a felhasználónak interakció után
+    
     Alert.alert(
       "✅ Sikeres művelet!",
       `A cica ${action} megtörtént! 🐾`,
